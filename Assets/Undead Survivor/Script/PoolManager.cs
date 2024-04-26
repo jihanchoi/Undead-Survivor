@@ -10,14 +10,11 @@ public class PoolManager : MonoBehaviour
     private void Awake()
     {
         monsterList = new List<GameObject>[monsterPrefab.Length];
-
         for(int i = 0; i < monsterList.Length; i++)
-        {
             monsterList[i] = new List<GameObject>();
-        }
     }
 
-    public GameObject MonsterGet(int i)
+    public GameObject GetPrefab(int i)
     {
         GameObject select = null;
         //Monster를 생성할 때 비활성화된 Monster가 있으면 재활용

@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Spawner : MonoBehaviour
 {
+    public LevelSpawnData[] levelData;
+
     float spawnTimer;
     int level;
 
@@ -11,7 +15,8 @@ public class Spawner : MonoBehaviour
     {
         //일정 시간 마다 몬스터를 생성
         spawnTimer += Time.deltaTime;
-        if(spawnTimer > 1f)
+        level = Mathf.FloorToInt(GameManager.instance.gameTime / 10f);
+        if(spawnTimer > levelData[level].spawnTime)
         {
             MonsterSpawn();
             spawnTimer = 0f;
@@ -21,9 +26,9 @@ public class Spawner : MonoBehaviour
     void MonsterSpawn()
     {
         //랜덤한 몬스터를 특정한 위치에 생성
-        GameObject monster = GameManager.instance.poolManager.MonsterGet
-             (Random.Range(0, GameManager.instance.poolManager.monsterPrefab.Length));
+        GameObject monster = GameManager.instance.poolManager.GetPrefab(0);
         monster.transform.position = SpawnPosition();
+        monster.GetComponent<Monster>().Init(levelData[level]);
     }
 
     public Vector3 SpawnPosition()
@@ -40,4 +45,12 @@ public class Spawner : MonoBehaviour
 
         return spawnDefense + transform.position;
     }
+}
+[System.Serializable]
+public class LevelSpawnData
+{
+    public int spriteType;
+    public float spawnTime;
+    public int health;
+    public float speed;
 }

@@ -20,14 +20,6 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        gameTime = Time.deltaTime;
+        gameTime += Time.deltaTime;
     }
-}
-
-public class SpawnData
-{
-    public int spriteType;
-    public float spawnTime;
-    public int health;
-    public float speed;
 }
