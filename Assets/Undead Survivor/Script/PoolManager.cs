@@ -4,33 +4,33 @@ using UnityEngine;
 
 public class PoolManager : MonoBehaviour
 {
-    public GameObject[] monsterPrefab;
-    List<GameObject>[] monsterList;
+    public GameObject[] prefab;
+    List<GameObject>[] prefabList;
 
     private void Awake()
     {
-        monsterList = new List<GameObject>[monsterPrefab.Length];
-        for(int i = 0; i < monsterList.Length; i++)
-            monsterList[i] = new List<GameObject>();
+        prefabList = new List<GameObject>[prefab.Length];
+        for(int i = 0; i < prefabList.Length; i++)
+            prefabList[i] = new List<GameObject>();
     }
 
     public GameObject GetPrefab(int i)
     {
         GameObject select = null;
         //Monster를 생성할 때 비활성화된 Monster가 있으면 재활용
-        foreach (GameObject monster in monsterList[i])
+        foreach (GameObject Prefab in prefabList[i])
         {
-            if(!monster.activeSelf)
+            if(!Prefab.activeSelf)
             {
-                select = monster;
+                select = Prefab;
                 select.SetActive(true);
                 break;
             }
         }
         if(!select)
         {
-            select = Instantiate(monsterPrefab[i], transform);
-            monsterList[i].Add(select);
+            select = Instantiate(prefab[i], transform);
+            prefabList[i].Add(select);
         }
         return select;
     }

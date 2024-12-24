@@ -10,21 +10,33 @@ public class Player : MonoBehaviour
     Rigidbody2D rigd;
     SpriteRenderer sprite;
     Animator animator;
+    public Scanner scanner;
+    public Hand[] hands;
 
     private void Awake()
     {
         rigd = GetComponent<Rigidbody2D>();
         sprite = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        scanner = GetComponent<Scanner>();
+        hands = GetComponentsInChildren<Hand>(true);
     }
     private void FixedUpdate()
     {
+        if (!GameManager.instance.isLive)
+        {
+            return;
+        }
         //OnMove()로 받아온 값으로 Player 움직이기
         Vector2 moveVec = inputVelue * moveSpeed * Time.fixedDeltaTime;
         rigd.MovePosition(rigd.position + moveVec);
     }
     private void LateUpdate()
     {
+        if (!GameManager.instance.isLive)
+        {
+            return;
+        }
         //Player의 애니메이션과 바라보는 방향 설정하기
         animator.SetFloat("Speed", inputVelue.magnitude);
         if(inputVelue.x != 0)
@@ -38,4 +50,5 @@ public class Player : MonoBehaviour
     {
         inputVelue = value.Get<Vector2>();
     }
+
 }

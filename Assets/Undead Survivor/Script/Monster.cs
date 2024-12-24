@@ -15,39 +15,50 @@ public class Monster : MonoBehaviour
     Rigidbody2D rigid;
     SpriteRenderer spriteRenderer;
     Animator monsterAni;
+    Collider2D coll;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         monsterAni = GetComponent<Animator>();
+        coll = GetComponent<Collider2D>();
     }
 
     private void OnEnable()
     {
         targetRigid = GameManager.instance.player.GetComponent<Rigidbody2D>();
         isLive = true;
+        coll.enabled = true;
+        rigid.simulated = true;
+        spriteRenderer.sortingOrder = 2;
+        monsterAni.SetBool("Dead", false);
         health = maxHealth;
     }
     private void FixedUpdate()
     {
-        //사망시 움직임을 방지
-        if(!isLive)
+        if (!GameManager.instance.isLive)
+        {
+            return;
+        }
+        if (!isLive || monsterAni.GetCurrentAnimatorStateInfo(0).IsName("Hit"))
             return;
 
-        //target이 존재할 경우 target을 향하여 이동하기
-        if(targetRigid != null)
+        if (targetRigid != null)
         {
             Vector2 dirVec = targetRigid.position - rigid.position;
             Vector2 nextVec = dirVec.normalized * speed * Time.fixedDeltaTime;
             rigid.MovePosition(rigid.position + nextVec);
-            rigid.velocity = Vector2.zero;
+            rigid.linearVelocity = Vector2.zero;
         }
     }
     private void LateUpdate()
     {
-        //이동시 바라보는 방향
-        if(isLive)
+        if (!GameManager.instance.isLive)
+        {
+            return;
+        }
+        if (isLive)
             spriteRenderer.flipX = targetRigid.position.x > rigid.position.x ? false : true;
     }
 
@@ -61,26 +72,37 @@ public class Monster : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Bullet"))
+        if (!collision.CompareTag("Bullet") || !isLive)
             return;
 
         health -= collision.GetComponent<Bullet>().damage;
 
-        if(health > 0)
+        if (health > 0)
         {
-
-        }else
+            StartCoroutine(MonsterHit());
+        } else
         {
-            Dead();
+            isLive = false;
+            coll.enabled = false;
+            rigid.simulated = false;
+            spriteRenderer.sortingOrder = 1;
+            monsterAni.SetBool("Dead", true);
+            GameManager.instance.kill++;
+            GameManager.instance.GetExp();
         }
+    }
 
+    IEnumerator MonsterHit()
+    {
+        monsterAni.SetTrigger("Hit");
+        Vector3 playerPos = GameManager.instance.player.transform.position;
+        Vector3 dir = transform.position - playerPos;
+        rigid.AddForce(dir.normalized * 3, ForceMode2D.Impulse);
+        yield return null;
     }
 
     void Dead()
     {
-        isLive = false;
-        monsterAni.SetBool("Dead", true);
-
         gameObject.SetActive(false);
     }
 }

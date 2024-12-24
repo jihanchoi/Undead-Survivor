@@ -13,9 +13,17 @@ public class Spawner : MonoBehaviour
 
     private void Update()
     {
+        if (!GameManager.instance.isLive)
+        {
+            return;
+        }
         //일정 시간 마다 몬스터를 생성
         spawnTimer += Time.deltaTime;
-        level = Mathf.FloorToInt(GameManager.instance.gameTime / 10f);
+        if(level < levelData.Length -1)
+        {
+            level = Mathf.FloorToInt(GameManager.instance.gameTime / 10f);
+        }
+
         if(spawnTimer > levelData[level].spawnTime)
         {
             MonsterSpawn();
